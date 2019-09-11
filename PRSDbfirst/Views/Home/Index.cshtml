@@ -1,0 +1,22 @@
+﻿@model PRSDbfirst.Models.Users
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Please Sign in to make a request.</p>
+    <form name="login" action="UserController" method="UPValidation">
+        <div>
+            <label>Username</label>
+            <input name="username" id="username" type="text" />
+        </div>
+        <div>
+            <label>Password</label>
+            <input name="password" id="password" type="password" />
+        </div>
+
+        <input type="submit" value="log in" asp-controller="Users" asp- asp-action="UPValidation" />
+    </form>
+</div>
