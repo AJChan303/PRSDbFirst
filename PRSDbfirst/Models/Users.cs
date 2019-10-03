@@ -7,7 +7,6 @@ namespace PRSDbfirst.Models
     {
         public Users()
         {
-            Requests = new HashSet<Requests>();
         }
 
         public int Id { get; set; }
@@ -20,6 +19,5 @@ namespace PRSDbfirst.Models
         public bool IsReviewer { get; set; }
         public bool IsAdmin { get; set; }
 
-        public virtual ICollection<Requests> Requests { get; set; }
     }
 }

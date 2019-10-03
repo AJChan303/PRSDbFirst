@@ -11,35 +11,43 @@ namespace PRSDbfirst.Controllers
 {
     [Route("api/RequestLine")]
     [ApiController]
-    public class RequestLinesApiController : ControllerBase
-    {
+    public class RequestLinesApiController : ControllerBase {
         private readonly PRSDbContext _context;
 
-        public RequestLinesApiController(PRSDbContext context)
-        {
+        public RequestLinesApiController(PRSDbContext context) {
             _context = context;
         }
 
         // GET: api/RequestLinesApi
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestLines>>> GetRequestLines()
-        {
+        public async Task<ActionResult<IEnumerable<RequestLines>>> GetRequestLines() {
             return await _context.RequestLines.ToListAsync();
         }
-
-        // GET: api/RequestLinesApi/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RequestLines>> GetRequestLines(int id)
-        {
+        [HttpGet("id/{id}")]
+        //GET: api/RequestLinesApi/5
+        public async Task<ActionResult<RequestLines>> GetRequest(int id) {
             var requestLines = await _context.RequestLines.FindAsync(id);
 
-            if (requestLines == null)
-            {
+            if (requestLines == null) {
                 return NotFound();
             }
+            RecalcuateRequestTotal(requestLines.RequestId);
 
             return requestLines;
         }
+        [HttpGet("{Rid}")]
+        //Getting Request Lines that match the request line id
+        public async Task<ActionResult<IEnumerable<RequestLines>>> GetRequestLines(int Rid) {
+            var requestLines = await _context.RequestLines.Where(r => r.RequestId == Rid).ToListAsync();
+
+            if (requestLines == null) {
+                return NotFound();
+            }
+            RecalcuateRequestTotal(Rid);
+
+            return requestLines;
+        }
+    
 
         // PUT: api/RequestLinesApi/5
         [HttpPut("{id}")]
@@ -54,8 +62,8 @@ namespace PRSDbfirst.Controllers
 
             try
             {
+            var success = RecalcuateRequestTotal(requestLines.RequestId);
                 await _context.SaveChangesAsync();
-            var success = RecalcuateRequestTotal(id);
             if (!success) { return this.StatusCode(500); }
             }
             catch (DbUpdateConcurrencyException)
@@ -75,16 +83,17 @@ namespace PRSDbfirst.Controllers
 
         // POST: api/RequestLinesApi
         [HttpPost]
-        public async Task<ActionResult<RequestLines>> PostRequestLines(RequestLines requestLines)
-        {
+        public async Task<ActionResult<RequestLines>> PostRequestLines(RequestLines requestLines) {
             _context.RequestLines.Add(requestLines);
-            await _context.SaveChangesAsync();
 
-            var success = RecalcuateRequestTotal(requestLines.Id);
+            await _context.SaveChangesAsync();
+            var success = RecalcuateRequestTotal(requestLines.RequestId);
+            await _context.SaveChangesAsync();
             if (!success) { return this.StatusCode(500); }
-            return CreatedAtAction("GetRequestLines", new { id = requestLines.Id }, requestLines);
+            else {
+                return CreatedAtAction("GetRequestLines", new { id = requestLines.Id }, requestLines);
+            }
         }
-        
         // DELETE: api/RequestLinesApi/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<RequestLines>> DeleteRequestLines(int id)
@@ -94,10 +103,10 @@ namespace PRSDbfirst.Controllers
             {
                 return NotFound();
             }
-
+            int Rid = requestLines.RequestId;
             _context.RequestLines.Remove(requestLines);
             await _context.SaveChangesAsync();
-            var success = RecalcuateRequestTotal(id);
+            var success = RecalcuateRequestTotal(Rid);
             if (!success) { return this.StatusCode(500); }
             return requestLines;
         }
@@ -114,8 +123,7 @@ namespace PRSDbfirst.Controllers
             request.Total = _context.RequestLines.Include(l => l.Product)
             .Where(l => l.RequestId == requestId)
             .Sum(l => l.Quantity * l.Product.Price);
-            if (request.Status == "Review")
-                request.Status = "Revised";
+            
 
             _context.SaveChanges();
             return true;

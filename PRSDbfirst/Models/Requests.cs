@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.SqlTypes;
 
 namespace PRSDbfirst.Models
 {
-    public partial class Requests
-    {
-        public Requests()
-        {
-            RequestLines = new HashSet<RequestLines>();
+    public partial class Requests {
+        public Requests() {
+            //RequestLines = new HashSet<RequestLines>();
         }
 
         public int Id { get; set; }
@@ -17,9 +16,9 @@ namespace PRSDbfirst.Models
         public string Justification { get; set; }
         public string DeliveryMode { get; set; }
         public string Status { get; set; }
-        public decimal Total { get; set; }
+        public decimal Total { get ; set; }
         public int UserId { get; set; }
-        
+        public string RejectionReason { get; set; }
         public DateTime? DateRequested {
             get {
                 return this.dateCreated.HasValue
@@ -35,6 +34,6 @@ namespace PRSDbfirst.Models
 
 
         public virtual Users User { get; set; }
-        public virtual ICollection<RequestLines> RequestLines { get; set; }
+        //public virtual ICollection<RequestLines> RequestLines { get; set; }
     }
 }

@@ -23,24 +23,40 @@ namespace PRSDbfirst.Controllers
         // GET: api/RequestsApi 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Requests>>> GetRequests()
-        {
-            return await _context.Requests.ToListAsync();
-        }
-        // GET: api/GetRequestsForReview
-        [Route("/api/GetRequestsForReview")]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Requests>>> GetRequestsForReview()
-        {
+        {   var requests=await _context.Requests.ToListAsync();
+            foreach (var item in requests) {
+                RecalcuateRequestTotal(item.Id);
 
-            return await _context.Requests.Where(m=>m.Status == "Review").ToListAsync();
+            }
+            _context.SaveChanges();
+            return requests;
         }
+        //GET: api/GetRequestsForReview
+       [Route("/api/GetRev/{id}")]
+       [HttpGet]
+        public async Task<ActionResult<IEnumerable<Requests>>> GetRequestsForReview(int id) {
+
+            return await _context.Requests.Where(m => m.Status == "Review").Where( m=>m.UserId != id).ToListAsync();
+        }
+        //GET: api/GetRequestsForReview
+       //[Route("/api/GetRev/{id}")]
+       // [HttpGet]
+       // public async Task<ActionResult<IEnumerable<Requests>>> GetRequestsForReview(int id)
+       // {
+       //     var reviews = from p in _context.Requests
+       //                   where p.Status == "Review" && p.UserId != id
+       //                   select p;
+       //     return reviews;
+            
+       // }
 
         // GET: api/RequestsApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Requests>> GetRequests(int id)
         {
             var requests = await _context.Requests.FindAsync(id);
-
+            RecalcuateRequestTotal(id);
+            _context.SaveChanges();
             if (requests == null)
             {
                 return NotFound();
@@ -51,35 +67,50 @@ namespace PRSDbfirst.Controllers
         
         // GET: api/SetStatusReview
         //a request that we are going to do an update with
-        [Route("/api/SetStatusReview/{id}")]
+        [Route("/api/SetRev/{id}")]
         [HttpGet]
         
         public async Task<ActionResult<Requests>> SetStatusReview(int id)
         {
             var requests = await _context.Requests.FindAsync(id);
-
+            
             if (requests == null)
             {
                 return NotFound();
             }
-            requests.Status = "Review";
+            RecalcuateRequestTotal(id);
+            requests.Status = (requests.Total < 50) ? "Approved" : "Review";
+
+            
             await _context.SaveChangesAsync();
             return Ok();
         }
-        [Route("/api/SetStatusreject/{id}")]
-        [HttpGet]
+        [Route("/api/Setrej/{id}")]
+        [HttpPut]
 
-        public async Task<ActionResult<Requests>> SetStatusReject(int id) {
-            var requests = await _context.Requests.FindAsync(id);
-
-            if (requests == null) {
-                return NotFound();
+        public async Task<ActionResult<Requests>> SetStatusReject(int id, Requests req) {
+            if (id != req.Id) {
+                return BadRequest();
             }
-            requests.Status = "Reject";
-            await _context.SaveChangesAsync();
-            return Ok();
+
+            _context.Entry(req).State = EntityState.Modified;
+            req.Status = "Reject";
+
+            try {
+                await _context.SaveChangesAsync();
+
+            }
+            catch (DbUpdateConcurrencyException) {
+                if (!RequestsExists(id)) {
+                    return NotFound();
+                }
+                else {
+                    throw;
+                }
+            }
+            return NoContent();
         }
-        [Route("/api/SetStatusApproved/{id}")]
+        [Route("/api/SetApp/{id}")]
         [HttpGet]
 
         public async Task<ActionResult<Requests>> SetStatusApproved(int id) {
@@ -151,6 +182,20 @@ namespace PRSDbfirst.Controllers
         private bool RequestsExists(int id)
         {
             return _context.Requests.Any(e => e.Id == id);
+        }
+        private bool RecalcuateRequestTotal(int requestId) {
+            var request = _context.Requests.SingleOrDefault(r => r.Id == requestId);
+            if (request == null) {
+                return false;
+            }
+            request.Total = _context.RequestLines.Include(l => l.Product)
+            .Where(l => l.RequestId == requestId)
+            .Sum(l => l.Quantity * l.Product.Price);
+            
+
+            _context.SaveChanges();
+            return true;
+
         }
     }
 }

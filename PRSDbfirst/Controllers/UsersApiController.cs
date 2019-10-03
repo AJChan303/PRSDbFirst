@@ -7,56 +7,37 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PRSDbfirst.Models;
 
-namespace PRSDbfirst.Controllers
-{
+namespace PRSDbfirst.Controllers {
     [Route("api/User")]
     [ApiController]
-    public class UsersApiController : ControllerBase
-    {
+    public class UsersApiController : ControllerBase {
         private readonly PRSDbContext _context;
 
-        public UsersApiController(PRSDbContext context)
-        {
+        public UsersApiController(PRSDbContext context) {
             _context = context;
         }
-
         // GET: api/User
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Users>>> GetUsers()
-        {
+        public async Task<ActionResult<IEnumerable<Users>>> GetUsers() {
             return await _context.Users.ToListAsync();
         }
 
         // GET: api/User/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Users>> GetUsers(int id)
-        {
+        public async Task<ActionResult<Users>> GetUsers(int id) {
             var users = await _context.Users.FindAsync(id);
 
-            if (users == null)
-            {
-                return NotFound();
-            }
-
-            return users;
-        }  // GET: api/User/username/password
-        //if route starts with a /  it means sername.com/(start of route) start at root
-        //need to be a post to be case sensitive or use odata
-        [Route("/api/User/{username}/{password}")]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Users>> GetUser(string username, string password)
-        {
-            var users = await _context
-                .Users.Where(m => m.Username == username && m.Password == password)
-                .FirstOrDefaultAsync();
-
-            if (users == null)
-            {
+            if (users == null) {
                 return NotFound();
             }
 
             return users;
         }
+        // GET: api/User/username/password
+        //if route starts with a /  it means sername.com/(start of route) start at root
+        //need to be a post to be case sensitive or use odata
+        
+       
 
         // PUT: api/User/5
         [HttpPut("{id}")]
@@ -86,6 +67,18 @@ namespace PRSDbfirst.Controllers
             }
 
             return NoContent();
+        }
+        [HttpPost("login")]
+        public async Task<ActionResult<Users>> GetUser(Users users) {
+            var user = await _context
+                .Users.Where(m => m.Username == users.Username && m.Password == users.Password)
+                .FirstOrDefaultAsync();
+
+            if (user == null) {
+                return NotFound();
+            }
+
+            return user;
         }
 
         // POST: api/Users1

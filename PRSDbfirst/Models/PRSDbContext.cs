@@ -50,28 +50,28 @@ namespace PRSDbfirst.Models
                     .IsRequired()
                     .HasMaxLength(30);
 
-                entity.HasOne(d => d.Vendor)
-                    .WithMany(p => p.Products)
-                    .HasForeignKey(d => d.VendorId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Products__Vendor__3D5E1FD2");
+                //entity.HasOne(d => d.Vendor)
+                //    //.WithMany(p => p.Products)
+                //    //.HasForeignKey(d => d.VendorId)
+                //    //.OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK__Products__Vendor__3D5E1FD2");
             });
 
             modelBuilder.Entity<RequestLines>(entity =>
             {
                 entity.Property(e => e.Quantity).HasDefaultValueSql("((1))");
 
-                entity.HasOne(d => d.Product)
-                    .WithMany(p => p.RequestLines)
-                    .HasForeignKey(d => d.ProductId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__RequestLi__Produ__46E78A0C");
+                //entity.HasOne(d => d.Product)
+                //    .WithMany(p => p.RequestLines)
+                //    .HasForeignKey(d => d.ProductId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK__RequestLi__Produ__46E78A0C");
 
-                entity.HasOne(d => d.Request)
-                    .WithMany(p => p.RequestLines)
-                    .HasForeignKey(d => d.RequestId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__RequestLi__Reque__45F365D3");
+                //entity.HasOne(d => d.Request)
+                //    .WithMany(p => p.RequestLines)
+                //    .HasForeignKey(d => d.RequestId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK__RequestLi__Reque__45F365D3");
             });
 
             modelBuilder.Entity<Requests>(entity =>
@@ -96,11 +96,11 @@ namespace PRSDbfirst.Models
 
                 entity.Property(e => e.Total).HasColumnType("decimal(18, 0)");
 
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Requests)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Requests__UserId__4316F928");
+                //entity.HasOne(d => d.User)
+                //    .WithMany(p => p.Requests)
+                //    .HasForeignKey(d => d.UserId)
+                //    .OnDelete(DeleteBehavior.ClientSetNull)
+                //    .HasConstraintName("FK__Requests__UserId__4316F928");
             });
 
             modelBuilder.Entity<Users>(entity =>

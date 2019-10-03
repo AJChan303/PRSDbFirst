@@ -25,12 +25,16 @@ namespace PRSDbfirst {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
+
             });
 
-
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddDbContext<Models.PRSDbContext>
-    (options => options.UseSqlServer(Configuration.GetConnectionString("connStr")));
+        (options => {
+            options.UseLazyLoadingProxies();
+        options.UseSqlServer(Configuration.GetConnectionString("connStr"));
+    });
 
         }
 
@@ -48,6 +52,7 @@ namespace PRSDbfirst {
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseCors(opt => opt.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
             app.UseMvc(routes => {
                 routes.MapRoute(

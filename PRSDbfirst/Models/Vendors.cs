@@ -8,7 +8,6 @@ namespace PRSDbfirst.Models
     {
         public Vendors()
         {
-            Products = new HashSet<Products>();
         }
 
         public int Id { get; set; }
@@ -23,6 +22,5 @@ namespace PRSDbfirst.Models
         public string Phone { get; set; }
         public string Email { get; set; }
 
-        public virtual ICollection<Products> Products { get; set; }
     }
 }
